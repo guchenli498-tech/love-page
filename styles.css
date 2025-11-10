@@ -1,0 +1,124 @@
+:root{
+	--bg:#090a15;
+	--fg:#f8fbff;
+	--muted:#b7c2d9;
+	--card:#0e1120cc;
+	--glass:rgba(255,255,255,.12);
+	--accent:#ff4d9d;
+	--accent-2:#ffd166;
+	--neon:#9d7dff;
+	--shadow:rgba(0,0,0,.45);
+}
+[data-theme="light"]{
+	--bg:#fff7fb;
+	--fg:#181828;
+	--muted:#68708a;
+	--card:#ffffffcc;
+	--glass:rgba(0,0,0,.08);
+	--accent:#ff2f87;
+	--accent-2:#ffb703;
+	--neon:#6c4cff;
+	--shadow:rgba(0,0,0,.16);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+	margin:0;
+	color:var(--fg);
+	background:
+		radial-gradient(1200px 1200px at 10% 20%, #120e2c 0%, transparent 60%),
+		radial-gradient(1000px 1000px at 80% 80%, #1a1934 0%, transparent 60%),
+		var(--bg);
+	font-family: "Noto Serif SC", "ZCOOL KuaiLe", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+	overflow:hidden;
+}
+.bg-layer{ position:fixed; inset:0; pointer-events:none; }
+.grid{
+	position:absolute; inset:0;
+	background-image:linear-gradient(transparent 96%, rgba(255,255,255,.06) 96%),
+	                 linear-gradient(90deg, transparent 96%, rgba(255,255,255,.06) 96%);
+	background-size:46px 46px;
+	mask-image:radial-gradient(60% 60% at 50% 50%, black 0%, transparent 100%);
+}
+.blob{ position:absolute; width:60vmax; height:60vmax; border-radius:50%; filter:blur(60px); opacity:.55; }
+.b1{ background:radial-gradient(circle at 30% 30%, var(--accent), transparent 60%); top:-20vmax; left:-16vmax; animation:float 18s ease-in-out infinite; }
+.b2{ background:radial-gradient(circle at 70% 70%, var(--neon), transparent 60%); bottom:-22vmax; right:-18vmax; animation:float2 22s ease-in-out infinite; }
+.b3{ background:radial-gradient(circle at 50% 50%, var(--accent-2), transparent 60%); top:30%; left:55%; width:36vmax; height:36vmax; animation:float3 26s ease-in-out infinite; opacity:.45; }
+@keyframes float{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(2.5%) } }
+@keyframes float2{ 0%,100%{ transform:translate(0,0) } 50%{ transform:translate(-2%,2%) } }
+@keyframes float3{ 0%,100%{ transform:translate(0,0) } 50%{ transform:translate(1%,-2%) } }
+
+.stage{
+	position:relative;
+	/* 兼容性：旧版浏览器不支持 100dvh，使用 100vh 回退 */
+	min-height:100vh; height:100vh; width:100%;
+	display:grid; place-items:center; padding:20px;
+}
+@supports (height: 100dvh){
+	.stage{ height:100dvh; }
+}
+.card{
+	position:relative; z-index:2;
+	width:min(920px, 92vw);
+	padding:36px 28px 28px;
+	border-radius:28px;
+	border:1px solid var(--glass);
+	background:linear-gradient(180deg, color-mix(in oklab, var(--card) 86%, transparent), color-mix(in oklab, var(--card) 96%, transparent));
+	backdrop-filter:blur(14px) saturate(120%);
+	box-shadow:0 30px 60px var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
+	text-align:center;
+}
+.heart3d{
+	display:grid; place-items:center; margin-bottom:12px;
+	filter:drop-shadow(0 12px 30px color-mix(in oklab, var(--accent) 40%, transparent));
+	animation:breath 2.6s ease-in-out infinite;
+}
+@keyframes breath{
+	0%,100%{ transform:scale(1) }
+	50%{ transform:scale(1.035) }
+}
+.heart-svg{ width:min(160px, 28vw); height:auto; }
+
+.headline{
+	margin:0; padding:10px 8px 2px;
+	font-weight:900;
+	font-size:clamp(28px, 7.8vmin, 72px);
+	letter-spacing:.02em;
+	text-shadow:
+		0 0 24px color-mix(in oklab, var(--accent) 50%, transparent),
+		0 0 8px rgba(0,0,0,.35);
+}
+.spark{ color:var(--accent-2); margin-right:.25em; filter:drop-shadow(0 0 8px color-mix(in oklab, var(--accent-2) 70%, transparent)); }
+.type{ font-family:"ZCOOL KuaiLe", "Noto Serif SC", serif; }
+.cursor{ display:inline-block; width:.6ch; color:var(--accent); animation:blink 1s steps(1) infinite; }
+@keyframes blink{ 50%{ opacity:0 } }
+
+.sub{
+	margin:8px 0 16px;
+	font-size:14px; color:var(--muted);
+}
+.actions{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.btn{
+	border:1px solid var(--glass);
+	background:linear-gradient(180deg, color-mix(in oklab, #ffffff40 30%, #0000), color-mix(in oklab, #ffffff10 80%, #0000));
+	color:var(--fg); padding:10px 16px; border-radius:12px; cursor:pointer;
+	box-shadow:0 10px 22px var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.btn.ghost{
+	background:transparent;
+}
+.btn:active{ transform:translateY(1px) }
+
+#loveCanvas{
+	position:absolute; inset:0; z-index:3; pointer-events:none;
+	width:100%; height:100%;
+	background:transparent;
+}
+
+/* 小屏优化 */
+@media (max-width:480px){
+	.card{ padding:28px 16px 18px; }
+	.sub{ font-size:13px }
+}
+
+
