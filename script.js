@@ -1,73 +1,161 @@
-// 更新倒计时函数
-function updateCountdown() {
-    const startDate = new Date('2025-05-02');
-    const now = new Date();
-    const diff = now - startDate;
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    document.getElementById('days').textContent = days.toString().padStart(2, '0');
-    document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
-    document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
-    document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
-}
-
-// 打字机效果
-function typeWriter() {
-    const text = "杨淇超我爱你"; 
-    const element = document.getElementById('typing-text');
-    element.innerHTML = ''; // 清空之前的内容
-    let i = 0;
-    function type() {
-        if (i < text.length) {
-            element.innerHTML += text.charAt(i);
-            i++;
-            setTimeout(type, 200);
-        }
-    }
-    type();
-}
-
-// 心形粒子效果
-function createHeartParticles(event) {
-    const heart = document.createElement('div');
-    heart.classList.add('heart');
-    heart.style.left = `${event.clientX}px`;
-    heart.style.top = `${event.clientY}px`;
-    document.body.appendChild(heart);
-    
-    setTimeout(() => {
-        heart.remove();
-    }, 1000);
-}
-
-// 主题切换
-function toggleTheme() {
-    document.body.classList.toggle('dark-theme');
-    localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
-}
-
-// 页面加载时初始化
-document.addEventListener('DOMContentLoaded', () => {
-    // 检查之前保存的主题
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-theme');
-    }
-
-    // 立即执行一次，之后每秒更新
-    updateCountdown();
-    typeWriter();
-    
-    // 每秒更新倒计时
-    setInterval(updateCountdown, 1000);
-
-    // 添加事件监听器
-    document.getElementById('heart-btn').addEventListener('click', createHeartParticles);
-    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-    document.body.addEventListener('click', createHeartParticles);
-});
+(() => {
+	const root = document.documentElement;
+	const canvas = document.getElementById('loveCanvas');
+	if (!canvas) return;
+	const ctx = canvas.getContext('2d');
+	if (!ctx) return;
+  
+	const typeTarget = document.getElementById('typeTarget');
+	const burstBtn = document.getElementById('burstBtn');
+	const toggleTheme = document.getElementById('toggleTheme');
+	const setStartBtn = document.getElementById('setStartBtn');
+	const startDateInput = document.getElementById('startDateInput');
+	const cDaysEl = document.getElementById('cDays');
+	const cHoursEl = document.getElementById('cHours');
+	const cMinutesEl = document.getElementById('cMinutes');
+	const cSecondsEl = document.getElementById('cSeconds');
+	const startDateTextEl = document.getElementById('startDateText');
+  
+	const phrase = '杨淇超我爱你';
+  
+	// 主题切换
+	const persisted = localStorage.getItem('love-theme');
+	if (persisted === 'light') root.setAttribute('data-theme','light');
+	toggleTheme.addEventListener('click', ()=>{
+	  const isLight = root.getAttribute('data-theme')==='light';
+	  if(isLight){ root.removeAttribute('data-theme'); localStorage.setItem('love-theme','dark'); }
+	  else{ root.setAttribute('data-theme','light'); localStorage.setItem('love-theme','light'); }
+	});
+  
+	// 打字机
+	async function typeText(text){
+	  typeTarget.textContent='';
+	  for(let i=0;i<text.length;i++){
+		typeTarget.textContent+=text[i];
+		await new Promise(r=>setTimeout(r,160+Math.random()*60));
+	  }
+	}
+  
+	// canvas 自适应
+	function resize(){
+	  const {width,height} = canvas.getBoundingClientRect();
+	  const dpr = Math.min(2, window.devicePixelRatio||1);
+	  canvas.width = Math.floor(width*dpr);
+	  canvas.height = Math.floor(height*dpr);
+	  ctx.setTransform(dpr,0,0,dpr,0,0);
+	}
+	if(typeof ResizeObserver!=='undefined'){
+	  const ro = new ResizeObserver(resize);
+	  ro.observe(canvas);
+	}else window.addEventListener('resize',resize);
+	resize();
+  
+	// 粒子系统
+	class Particle{
+	  constructor(x,y,vx,vy,life,color,size,shape='heart'){
+		Object.assign(this,{x,y,vx,vy,life,maxLife:life,color,size,shape});
+	  }
+	  update(dt){ this.vy+=400*dt*0.001; this.x+=this.vx*dt*0.001; this.y+=this.vy*dt*0.001; this.life-=dt; }
+	  draw(ctx){
+		const t=Math.max(0,this.life/this.maxLife);
+		ctx.save();
+		ctx.globalAlpha=Math.pow(t,1.5);
+		ctx.translate(this.x,this.y);
+		ctx.rotate((1-t)*0.6);
+		if(this.shape==='heart'){ drawHeart(ctx,this.size,this.color);}
+		else{ctx.fillStyle=this.color;ctx.beginPath();ctx.arc(0,0,this.size,0,Math.PI*2);ctx.fill();}
+		ctx.restore();
+	  }
+	}
+  
+	function drawHeart(ctx,s,color){
+	  ctx.fillStyle=color;
+	  ctx.beginPath();
+	  ctx.moveTo(0,-0.3*s);
+	  ctx.bezierCurveTo(0.5*s,-1.1*s,1.6*s,-0.1*s,0,1.15*s);
+	  ctx.bezierCurveTo(-1.6*s,-0.1*s,-0.5*s,-1.1*s,0,-0.3*s);
+	  ctx.closePath();
+	  ctx.fill();
+	}
+  
+	const particles=[];
+	let last=performance.now();
+	function loop(now){
+	  const dt=Math.min(32,now-last);
+	  last=now;
+	  ctx.clearRect(0,0,canvas.width,canvas.height);
+	  for(let i=particles.length-1;i>=0;i--){
+		const p=particles[i];
+		p.update(dt);
+		p.draw(ctx);
+		if(p.life<=0) particles.splice(i,1);
+	  }
+	  requestAnimationFrame(loop);
+	}
+	requestAnimationFrame(loop);
+  
+	function burst(x,y,amount=80){
+	  const palette=['#ff4d9d','#ff7aa2','#ffd166','#9d7dff','#30ffa3'];
+	  for(let i=0;i<amount;i++){
+		const a=Math.random()*Math.PI*2;
+		const speed=120+Math.random()*420;
+		const vx=Math.cos(a)*speed;
+		const vy=Math.sin(a)*speed-200;
+		const life=900+Math.random()*600;
+		const color=palette[Math.floor(Math.random()*palette.length)];
+		const size=3+Math.random()*8;
+		particles.push(new Particle(x,y,vx,vy,life,color,size,'heart'));
+	  }
+	}
+  
+	document.addEventListener('pointerdown',(e)=>{
+	  const rect=canvas.getBoundingClientRect();
+	  burst(e.clientX-rect.left,e.clientY-rect.top,120);
+	},{passive:true});
+	burstBtn.addEventListener('click',()=>{
+	  const rect=canvas.getBoundingClientRect();
+	  burst(rect.width*0.5,rect.height*0.55,160);
+	});
+  
+	// ==== 计时器 ====
+	function readStartDate(){
+	  // 默认纪念日
+	  return localStorage.getItem('loveStartDate') || '2025-05-02';
+	}
+	function setStartDate(iso){ localStorage.setItem('loveStartDate',iso); }
+	function formatDateCHN(d){ return `${d.getFullYear()}年${String(d.getMonth()+1).padStart(2,'0')}月${String(d.getDate()).padStart(2,'0')}日`; }
+  
+	function updateCounter(){
+	  const iso=readStartDate();
+	  const start=new Date(iso);
+	  startDateTextEl.textContent=formatDateCHN(start);
+	  const now=new Date();
+	  const diff=Math.max(0,now-start);
+	  const s=Math.floor(diff/1000);
+	  const days=Math.floor(s/86400);
+	  const hours=Math.floor((s%86400)/3600);
+	  const minutes=Math.floor((s%3600)/60);
+	  const seconds=s%60;
+	  cDaysEl.textContent=days;
+	  cHoursEl.textContent=String(hours).padStart(2,'0');
+	  cMinutesEl.textContent=String(minutes).padStart(2,'0');
+	  cSecondsEl.textContent=String(seconds).padStart(2,'0');
+	}
+  
+	setInterval(updateCounter,1000);
+	updateCounter();
+  
+	setStartBtn.addEventListener('click',()=>{
+	  startDateInput.click();
+	});
+	startDateInput.addEventListener('change',()=>{
+	  if(startDateInput.value){
+		setStartDate(startDateInput.value);
+		updateCounter();
+	  }
+	});
+  
+	typeText(phrase);
+  
+ })();
   
