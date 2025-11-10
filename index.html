@@ -4,9 +4,12 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Love • 杨淇超我爱你</title>
-	<!-- 国内可访问的字体镜像，避免 Google Fonts 被阻断 -->
+
+	<!-- 字体镜像（避免 Google Fonts 被墙） -->
 	<link rel="preconnect" href="https://fonts.font.im">
 	<link href="https://fonts.font.im/css2?family=Noto+Serif+SC:wght@400;600;900&family=Montserrat:wght@300;600;800&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+
+	<!-- 样式文件 -->
 	<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -31,12 +34,14 @@
 					<path d="M50 80 C20 60, 5 45, 10 30 C14 18, 26 12, 36 16 C42 18, 47 24, 50 30 C53 24, 58 18, 64 16 C74 12, 86 18, 90 30 C95 45, 80 60, 50 80 Z" fill="url(#g)"/>
 				</svg>
 			</div>
+
 			<h1 class="headline">
 				<span class="spark">✦</span>
 				<span id="typeTarget" class="type"></span>
 				<span class="cursor">|</span>
 			</h1>
 			<p class="sub">愿把星河揉碎，化作人间烟火，只为与你相伴。</p>
+
 			<div class="actions">
 				<button id="burstBtn" class="btn">撒一把爱心</button>
 				<button id="toggleTheme" class="btn ghost">切换主题</button>
@@ -59,8 +64,7 @@
 		<canvas id="loveCanvas"></canvas>
 	</main>
 
-	<script src="./script.js"></script>
+	<!-- 延迟加载脚本，避免 DOM 未加载 -->
+	<script src="./script.js" defer></script>
 </body>
 </html>
-
-
