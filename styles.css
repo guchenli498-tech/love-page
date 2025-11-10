@@ -115,6 +115,31 @@ body{
 	background:transparent;
 }
 
+/* 计时器 */
+.counter{
+	margin-top:16px;
+	padding:16px 14px;
+	border-radius:16px;
+	border:1px solid var(--glass);
+	background:linear-gradient(180deg, color-mix(in oklab, var(--card) 70%, transparent), color-mix(in oklab, var(--card) 88%, transparent));
+	display:grid; gap:10px;
+}
+.counter-title{
+	font-weight:700; letter-spacing:.02em;
+	color:var(--fg);
+}
+.counter-row{
+	display:flex; justify-content:center; gap:14px; flex-wrap:wrap;
+}
+.block{ display:flex; align-items:baseline; gap:6px; padding:6px 10px; border-radius:12px; background:color-mix(in oklab, #ffffff10 16%, #0000); }
+.num{
+	font-family:"ZCOOL KuaiLe","Noto Serif SC",serif;
+	font-size:clamp(24px, 6.5vmin, 54px);
+	text-shadow:0 0 18px color-mix(in oklab, var(--accent) 45%, transparent);
+}
+.unit{ color:var(--muted); font-size:14px; }
+.counter-sub{ color:var(--muted); font-size:12px; }
+
 /* 小屏优化 */
 @media (max-width:480px){
 	.card{ padding:28px 16px 18px; }

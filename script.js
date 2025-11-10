@@ -15,6 +15,13 @@
 	const typeTarget = document.getElementById('typeTarget');
 	const burstBtn = document.getElementById('burstBtn');
 	const toggleTheme = document.getElementById('toggleTheme');
+	const setStartBtn = document.getElementById('setStartBtn');
+	const startDateInput = document.getElementById('startDateInput');
+	const cDaysEl = document.getElementById('cDays');
+	const cHoursEl = document.getElementById('cHours');
+	const cMinutesEl = document.getElementById('cMinutes');
+	const cSecondsEl = document.getElementById('cSeconds');
+	const startDateTextEl = document.getElementById('startDateText');
 
 	// 目标文案
 	const phrase = '杨淇超我爱你';
@@ -140,6 +147,63 @@
 	burstBtn.addEventListener('click', () => {
 		const rect = canvas.getBoundingClientRect();
 		burst(rect.width * 0.5, rect.height * 0.55, 160);
+	});
+
+	// ===== 恋爱时长计时 =====
+	function readStartDate() {
+		let iso = localStorage.getItem('love-start-date');
+		if (!iso) {
+			// 若用户未设置，则以“当前日期 - 198 天”为默认起始
+			const now = new Date();
+			const startMs = now.getTime() - 198 * 24 * 60 * 60 * 1000;
+			const d = new Date(startMs);
+			iso = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T00:00:00`;
+			localStorage.setItem('love-start-date', iso);
+		}
+		return iso;
+	}
+	function setStartDate(isoDate) {
+		localStorage.setItem('love-start-date', isoDate);
+	}
+	function formatDateCHN(d) {
+		return `${d.getFullYear()}年${String(d.getMonth()+1).padStart(2,'0')}月${String(d.getDate()).padStart(2,'0')}日`;
+	}
+	function updateCounter() {
+		const iso = readStartDate();
+		const start = new Date(iso);
+		const now = new Date();
+		let diff = Math.max(0, now.getTime() - start.getTime());
+		const dayMs = 24*60*60*1000;
+		const days = Math.floor(diff / dayMs);
+		diff -= days * dayMs;
+		const hours = Math.floor(diff / (60*60*1000));
+		diff -= hours * 60*60*1000;
+		const minutes = Math.floor(diff / (60*1000));
+		diff -= minutes * 60*1000;
+		const seconds = Math.floor(diff / 1000);
+		cDaysEl.textContent = String(days);
+		cHoursEl.textContent = String(hours).padStart(2,'0');
+		cMinutesEl.textContent = String(minutes).padStart(2,'0');
+		cSecondsEl.textContent = String(seconds).padStart(2,'0');
+		startDateTextEl.textContent = formatDateCHN(start);
+	}
+	// 初始化 counter
+	updateCounter();
+	setInterval(updateCounter, 1000);
+	// 设置起始日交互
+	setStartBtn.addEventListener('click', () => {
+		const iso = readStartDate();
+		const [dateOnly] = iso.split('T');
+		startDateInput.value = dateOnly;
+		startDateInput.onchange = () => {
+			if (startDateInput.value) {
+				setStartDate(`${startDateInput.value}T00:00:00`);
+				updateCounter();
+				const rect = canvas.getBoundingClientRect();
+				burst(rect.width * 0.5, rect.height * 0.55, 160);
+			}
+		};
+		startDateInput.click();
 	});
 
 	// 初始动效

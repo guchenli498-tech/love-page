@@ -40,6 +40,19 @@
 			<div class="actions">
 				<button id="burstBtn" class="btn">撒一把爱心</button>
 				<button id="toggleTheme" class="btn ghost">切换主题</button>
+				<button id="setStartBtn" class="btn ghost">设置纪念日</button>
+			</div>
+
+			<div class="counter glass" aria-live="polite">
+				<div class="counter-title">我们已经在一起</div>
+				<div class="counter-row">
+					<div class="block"><span id="cDays" class="num">0</span><span class="unit">天</span></div>
+					<div class="block"><span id="cHours" class="num">00</span><span class="unit">时</span></div>
+					<div class="block"><span id="cMinutes" class="num">00</span><span class="unit">分</span></div>
+					<div class="block"><span id="cSeconds" class="num">00</span><span class="unit">秒</span></div>
+				</div>
+				<div class="counter-sub">从 <span id="startDateText">—</span> 到现在</div>
+				<input id="startDateInput" type="date" style="display:none">
 			</div>
 		</section>
 
